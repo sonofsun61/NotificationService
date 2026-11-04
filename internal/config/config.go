@@ -1,9 +1,14 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strings"
+
+	"github.com/joho/godotenv"
+)
 
 type Config struct {
-	KafkaBrokers        string
+	KafkaBrokers        []string
 	KafkaTopicUserEvent string
 	KafkaGroupID        string
 	PostgresURL         string
@@ -12,6 +17,7 @@ type Config struct {
 }
 
 func MustLoadConfig() *Config {
+	_ = godotenv.Load()
 	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
 	if kafkaBrokers == "" {
 		panic("KAFKA_BROKERS is not set")
@@ -37,7 +43,7 @@ func MustLoadConfig() *Config {
 		panic("MAIL_FROM is not set")
 	}
 	return &Config{
-		KafkaBrokers:        kafkaBrokers,
+		KafkaBrokers:        strings.Split(kafkaBrokers, ","),
 		KafkaTopicUserEvent: kafkaTopicUserEvent,
 		KafkaGroupID:        kafkaGroupID,
 		PostgresURL:         postgresURL,
