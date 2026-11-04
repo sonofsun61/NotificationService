@@ -30,9 +30,10 @@ func NewService(mailer Mailer, repo Repository) *Service {
 
 func (s *Service) HandleUserRegistered(ctx context.Context, event events.UserRegistered) error {
 	err := s.repo.ProcessOnce(ctx, event.EventID, func(ctx context.Context) error {
-		subject, body := "Welcome!", "You registered on our site. Welcome!"
+		subject := "Welcome!"
+		body := fmt.Sprintf("Hello, %s!\n\nYou have successfully registered on our site. Welcome!", event.Name)
 		if err := s.mailer.Send(ctx, event.Email, subject, body); err != nil {
-			return fmt.Errorf("failed to process event: %w", err)
+			return fmt.Errorf("failed to send email: %w", err)
 		}
 		return nil
 	})

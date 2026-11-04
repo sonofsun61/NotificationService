@@ -30,9 +30,11 @@ func (r *Repository) ProcessOnce(ctx context.Context, eventID uuid.UUID, fn func
 	if tag.RowsAffected() == 0 {
 		return nil
 	}
-	err = fn(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to send email: %w", err)
+	if err := fn(ctx); err != nil {
+		return err
 	}
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+	return nil
 }
